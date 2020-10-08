@@ -2,6 +2,7 @@ import json
 import requests
 import urllib3
 from random import randint as r_int
+from selenium import webdriver #gonna be used for most everyything but the actual bot.
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -16,11 +17,11 @@ file = open("surnames.txt", "r")
 l_names = [line[0:-1] for line in file]
 
 class person:
-	def __init__ (self,card_number="foo", cardholder="foo", expiry_month="foo", expiry_year="foo", cvv="foo"):#, address, card_number, month, year, code, number, phone, mail_code):
+	def __init__ (self,card_number="531257004874", cardholder="Joseph Beach", expiry_month="06", expiry_year="2023", cvv="223"):
 		self.first_name = f_names[r_int(0,len(f_names) - 1)]
 		self.last_name = l_names[r_int(0,len(l_names) - 1)]
 		self.email = self.generate_email(self.first_name, self.last_name)
-		(self.token, self.card) = self.get_payment_token(card_number, cardholder, expiry_month, expiry_year, cvv)
+		(self.token, self.card) = self.get_shopify_payment_token(card_number, cardholder, expiry_month, expiry_year, cvv)
 		"""
 		self.phone_number = phone
 		self.city = "charlotte"
@@ -30,7 +31,7 @@ class person:
 		Self.Country = "United States"
 		"""
 	#generate payment token in advanced to save time.
-	def get_payment_token(self, card_number, cardholder, expiry_month, expiry_year, cvv):
+	def get_shopify_payment_token(self, card_number, cardholder, expiry_month, expiry_year, cvv):
 		link = "https://elb.deposit.shopifycs.com/sessions"
 		payload = {
 	    "credit_card": {
@@ -43,7 +44,7 @@ class person:
     	}
 		r = requests.post(link, json=payload, verify=False)
 		payment_token = json.loads(r.text)["id"]
-		return (payment_token, payload['credit card'])
+		return (payment_token, payload['credit_card'])
 
 
 	def generate_email(self, fname, lname):
@@ -64,3 +65,5 @@ class person:
  
 		if (" " in username): username.replace(" ", transitions [r_int (0, len (transitions) - 1)])
 		return username + email_extensions [r_int (0, len (email_extensions) - 1)] 
+
+
