@@ -4,6 +4,7 @@ from random import randint as r_int
 from random import shuffle
 import urllib3
 import people 
+import time
 
 #sites that have a products.json file listed
 file = open("shopify_std_db.txt", "r")
@@ -16,13 +17,19 @@ def get_products (link, session):
 	products = products_json["products"]
 	return products
 
-def keyword_search (products, keywords, partial_match=False, partial_verify=False):
+def keyword_search (products, keywords, partial_match=True, partial_verify=True, verify_threshold=0.6):
 	for product in products:
-		keys = len(keywords)
+		keys = 0
 		for key in keywords:
-			if key in product["title"]: keys -= 1
-		if keys == 0: return product
-	return None #TODO partial keyword verification support
+			if key in product["title"]: keys += 1
+		if keys == len(keywords): return product
+		if keys/len(keywords) >= verify_threshold and partial_match:
+			if partial_verify:
+				if input ("item with name " + product['title'] + " is a " + str((keys/len(keywords)) * 100) + "% match, proceed [Y/n]") != "n":
+					return product
+			else:
+				return product
+	return None 
 
 def find_id(product, sizes): #this way you can get a random size from a range of ones
 	shuffle(sizes)
@@ -33,20 +40,39 @@ def find_id(product, sizes): #this way you can get a random size from a range of
 
 def get_cart_link(link, id): return link + "/cart/" + id + ":1"
 
+def add_to_cart (link, id):
+	url = link + "/cart/add.js?quantity=1&id=" + id
+	return session.get(url)
 
+def get_shipping_info(link, postal_code, country, province, cookies):
+	response = session.get(link, cookies=cookies, verify=False)
+	options = json.loads(response.text)
+	shipping_options = options["shipping_rates"][0]["name"].replace(' ', "%20")
+	shipping_price = options["shipping_rates"][0]["price"]
+	return "shopify-" + shipping_options+ "-" + shipping_price
+
+
+#just proof-of-concept code
 session = requests.session()
 url = "https://" + input("enter site: ")
 
-product = keyword_search(get_products(url, session), "Nike WMNS Max III".split(" "))
+def shopify_order (info, link, kwords, sizes, proxy_info = None, delay = 1):
+	if proxy_info: 
+		pass #TODO
+	else: 
+		session = requests.session()
+	product = None
+	
+	while not product:
+		time.sleep(delay)
+		products = get_products("https://" + link, session)
+		product = keyword_search(products, kwords)
 
-id = find_id (product, list(range(7,15)))
-cart_link = get_cart_link(url, id[0])
-
-print ("product: ",  product['title'])
-print ("\tprice", id[2])
-print ("\tsize:",id[1])
-print ("\tid:",id[0])
-print ("\tcart link: ", cart_link)
+	(variant_id, product_size, product_price) = find_id(product, sizes)
+	print("[*] ordering size", product_size, product['title'], "for", product_price, "usd")
+	response = add_to_cart(link, variant_id)
+	cookies = response.cookies
+	get_shipping_info(link, info.postal_code, info.country, info.state, cookies)
 
 
 """
@@ -55,6 +81,3 @@ https://www.yeezysupply.com, has a products.json file, but restricts access.
 https://shop.ronniefieg.com, idk what is up with this one.
 https://eflash-us.doverstreetmarket.com, idk either...
 """
-
-
-
