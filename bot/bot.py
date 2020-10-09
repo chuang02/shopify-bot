@@ -6,6 +6,12 @@ import urllib3
 import people 
 import time
 
+"""
+TODO:
+finish the checkout procedure.
+add proxy support.
+"""
+
 #sites that have a products.json file listed
 file = open("shopify_std_db.txt", "r")
 shopify_sites = [line[0:-1] for line in file]
@@ -75,9 +81,3 @@ def shopify_order (info, link, kwords, sizes, proxy_info = None, delay = 1):
 	get_shipping_info(link, info.postal_code, info.country, info.state, cookies)
 
 
-"""
-other sites:
-https://www.yeezysupply.com, has a products.json file, but restricts access.
-https://shop.ronniefieg.com, idk what is up with this one.
-https://eflash-us.doverstreetmarket.com, idk either...
-"""
