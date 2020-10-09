@@ -17,7 +17,7 @@ file = open("surnames.txt", "r")
 l_names = [line[0:-1] for line in file]
 
 class person:
-	def __init__ (self,card_number="531257004874", cardholder="Joseph Beach", expiry_month="06", expiry_year="2023", cvv="223"):
+	def __init__ (self,card_number, cardholder, expiry_month, expiry_year, cvv):
 		self.first_name = f_names[r_int(0,len(f_names) - 1)]
 		self.last_name = l_names[r_int(0,len(l_names) - 1)]
 		self.email = self.generate_email(self.first_name, self.last_name)
