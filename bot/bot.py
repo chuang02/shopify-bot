@@ -79,5 +79,3 @@ def shopify_order (info, link, kwords, sizes, proxy_info = None, delay = 1):
 	response = add_to_cart(link, variant_id)
 	cookies = response.cookies
 	get_shipping_info(link, info.postal_code, info.country, info.state, cookies)
-
-

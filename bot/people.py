@@ -3,6 +3,12 @@ import requests
 import urllib3
 from random import randint as r_int
 from selenium import webdriver #gonna be used for most everyything but the actual bot.
+"""
+TODO:
+somehow automate the creation of voip clients.
+jig addresses
+"""
+
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
